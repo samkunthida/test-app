@@ -2,7 +2,7 @@ name: Deploy React App to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]  # ถ้าสร้างบน branch อื่น ให้เปลี่ยนตรงนี้
+    branches: [ "master" ]  # ถ้าสร้างบน branch อื่น ให้เปลี่ยนตรงนี้
 
 permissions:
   contents: read
