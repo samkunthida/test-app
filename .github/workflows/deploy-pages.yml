@@ -2,7 +2,7 @@ name: Deploy React App to GitHub Pages
 
 on:
   push:
-    branches: [ "master" ]  # ถ้าสร้างบน branch อื่น ให้เปลี่ยนตรงนี้
+    branches: [ "main", "master" ]
 
 permissions:
   contents: read
@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm ci
