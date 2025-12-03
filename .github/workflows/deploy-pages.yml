@@ -16,19 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Read .nvmrc if present (set NODE_VERSION)
-        run: |
-          if [ -f .nvmrc ]; then
-            echo "Found .nvmrc -> $(cat .nvmrc)"
-            echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_ENV
-          else
-            echo "NODE_VERSION=18" >> $GITHUB_ENV
-          fi
-
-      - name: Setup Node
+      - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 22
           cache: 'npm'
 
       - name: Show Node / npm versions
@@ -44,46 +35,31 @@ jobs:
           set -o pipefail
           echo "Running npm run build..."
           if ! npm run build 2>&1 | tee build.log; then
-            echo "::error::npm run build failed. See build.log for output."
-            echo "==== Workspace after failed build ===="
+            echo "::error::npm run build failed. See build.log."
             ls -la || true
-            echo "==== Root contents ===="
-            pwd; ls -la . || true
-            echo "==== build folder check ===="
-            ls -la ./build || true
             exit 1
           fi
-          echo "Build succeeded. Listing build outputs:"
-          echo "==== root ===="
-          ls -la || true
-          echo "==== build (if any) ===="
+          echo "Build succeeded."
           ls -la ./build || true
-          echo "==== dist (if any) ===="
           ls -la ./dist || true
 
       - name: Detect artifact path (build vs dist)
         id: detect
         run: |
           if [ -d "./build" ]; then
-            echo "Detected ./build"
             echo "ARTIFACT_PATH=./build" >> $GITHUB_ENV
           elif [ -d "./dist" ]; then
-            echo "Detected ./dist"
             echo "ARTIFACT_PATH=./dist" >> $GITHUB_ENV
           else
-            echo "::error::No build output found (neither ./build nor ./dist)."
-            echo "Repository files:"
+            echo "::error::No build output found."
             ls -la || true
             exit 1
           fi
-        shell: bash
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ env.ARTIFACT_PATH }}
-          name: github-pages
-          retention-days: 1
 
   deploy:
     needs: build
